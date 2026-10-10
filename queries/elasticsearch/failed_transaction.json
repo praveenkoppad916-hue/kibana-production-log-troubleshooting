@@ -1,0 +1,13 @@
+{
+  "query": {
+    "term": {
+      "transaction_id": "TXN-100245"
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": "asc"
+    }
+  ],
+  "size": 100
+}

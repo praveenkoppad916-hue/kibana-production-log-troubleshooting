@@ -1,0 +1,16 @@
+{
+  "size": 0,
+  "query": {
+    "term": {
+      "log.level": "ERROR"
+    }
+  },
+  "aggs": {
+    "by_service": {
+      "terms": {
+        "field": "service.name",
+        "size": 20
+      }
+    }
+  }
+}

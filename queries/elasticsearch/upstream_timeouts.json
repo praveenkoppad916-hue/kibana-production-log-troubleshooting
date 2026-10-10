@@ -1,0 +1,8 @@
+{
+  "query": {
+    "term": {
+      "http.response.status_code": 504
+    }
+  },
+  "size": 100
+}

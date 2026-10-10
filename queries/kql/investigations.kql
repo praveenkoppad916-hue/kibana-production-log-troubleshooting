@@ -1,0 +1,22 @@
+// Paste ONE query at a time into Kibana Discover (KQL mode).
+// Set time range to 2026-09-15 09:55–10:15 UTC and use data view payment-logs.
+// LOG-001: exactly 4 documents
+transaction_id: "TXN-100245"
+
+// LOG-001: exactly 2 error documents
+transaction_id: "TXN-100245" and log.level: "ERROR"
+
+// LOG-002: exactly 2 HTTP 504 documents
+http.response.status_code: 504
+
+// LOG-003: exactly 1 HTTP 401 and 1 HTTP 403 document
+http.response.status_code: (401 or 403)
+
+// LOG-004: exactly 7 HTTP 5xx documents
+http.response.status_code >= 500 and http.response.status_code < 600
+
+// LOG-005: exactly 4 documents sharing a trace
+trace.id: "TRACE-A1"
+
+// LOG-006: exactly 3 gateway errors between 10:06:00 and 10:06:10 UTC
+service.name: "api-gateway" and log.level: "ERROR" and http.response.status_code: 500

@@ -1,0 +1,27 @@
+{
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+            "service.name": "api-gateway"
+          }
+        },
+        {
+          "term": {
+            "log.level": "ERROR"
+          }
+        },
+        {
+          "range": {
+            "@timestamp": {
+              "gte": "2026-09-15T10:06:00Z",
+              "lte": "2026-09-15T10:06:10Z"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "size": 100
+}
