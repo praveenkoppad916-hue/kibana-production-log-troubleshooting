@@ -1,342 +1,89 @@
+# Kibana Production Log Troubleshooting & Incident RCA Lab
 
+[![Validate sample investigations](https://github.com/praveenkoppad916-hue/kibana-production-log-troubleshooting/actions/workflows/validate.yml/badge.svg)](https://github.com/praveenkoppad916-hue/kibana-production-log-troubleshooting/actions/workflows/validate.yml)
 
-\# Kibana Production Log Troubleshooting \& Incident RCA Lab
+A **reproducible, fictional fintech log investigation lab** for L2/L3 production support. Explore 15 synthetic payment application log events, six Kibana KQL investigations, six Elasticsearch Query DSL examples, and an evidence-based incident RCA.
 
+> **No employer logs, customer records, internal endpoints, credentials, or proprietary configurations are included.** This is an independent training project.
 
+## Quick verification (no Elasticsearch installation)
 
-A hands-on L2/L3 production support project demonstrating payment transaction troubleshooting, log correlation, incident investigation, and root cause analysis using Elasticsearch, Kibana, Docker, and KQL.
+Requires Python 3.9+ (standard library only):
 
+```bash
+python scripts/validate_examples.py
+python -m unittest discover -s tests -v
+```
 
+Expected: `PASS: 15 fixture documents, all 8 scenario assertions, and 6 valid query JSON files` and four passing unit tests. GitHub Actions runs both commands on every push/PR.
 
-\## Project Overview
+**Scope:** These checks validate the sample data and expected counts, **not live Elasticsearch query execution**. See optional live setup below for end-to-end verification.
 
+## Investigations
 
+| Lab | Incident | KQL filter | Expected hits |
+|---|---|---|---:|
+| LOG-001 | Failed payment | `transaction_id: "TXN-100245"` | 4 |
+| LOG-002 | Upstream timeout | `http.response.status_code: 504` | 2 |
+| LOG-003 | Authentication/authorization | `http.response.status_code: (401 or 403)` | 2 |
+| LOG-004 | HTTP 5xx failures | `http.response.status_code >= 500 and http.response.status_code < 600` | 7 |
+| LOG-005 | Cross-service trace | `trace.id: "TRACE-A1"` | 4 |
+| LOG-006 | Gateway error burst | `service.name: "api-gateway" and log.level: "ERROR" and http.response.status_code: 500` | 3 |
 
-This lab simulates a fintech payment processing environment using 15 synthetic application log events.
+**Detailed walkthroughs and RCA:** [docs/incident-investigations.md](docs/incident-investigations.md)
 
+## Optional: run queries against Elasticsearch + Kibana
 
+Use a compatible Elasticsearch and Kibana installation. In **Kibana → Dev Tools → Console**, execute these requests in order:
 
-The objective is to investigate production-style incidents across multiple services, identify failure patterns, and document evidence-based findings.
+1. Create the index with the JSON body from [`scripts/create_index.json`](scripts/create_index.json):
 
+   `PUT payment-logs`
 
+   Paste the mapping JSON beneath that line, then run the request.
 
-All logs are fictional. No employer or customer data is used.
+2. Load the 15 documents using Elasticsearch Bulk API. The NDJSON fixture is **not already bulk formatted**; convert it with the standard-library command below from your repository root:
 
+   ```bash
+   python -c "import json,pathlib; rows=[json.loads(x) for x in pathlib.Path('data/payment_logs.ndjson').read_text().splitlines()]; pathlib.Path('data/bulk-import.ndjson').write_text(''.join(json.dumps({'index':{}})+'\n'+json.dumps(r)+'\n' for r in rows))"
+   ```
 
+   Then import using a local terminal with a configured, authorized Elasticsearch endpoint and credentials (example for a locally running unauthenticated test cluster only):
 
-\## Technologies Used
+   ```bash
+   curl -H 'Content-Type: application/x-ndjson' -X POST 'http://localhost:9200/payment-logs/_bulk?refresh=true' --data-binary @data/bulk-import.ndjson
+   ```
 
+   Check that the bulk response has `"errors":false`; use `GET payment-logs/_count` to confirm `15` documents. **Never upload `bulk-import.ndjson` if it contains real data.**
 
+3. In Kibana, create a data view named `payment-logs` with index pattern `payment-logs` and time field `@timestamp`.
+4. In Discover, set the **absolute UTC time range** to **2026-09-15 09:55 through 10:15**, and choose **KQL** (not Lucene).
+5. Copy **one KQL query at a time** from [`queries/kql/investigations.kql`](queries/kql/investigations.kql). Compare hit counts with the table above.
+6. In Dev Tools Console, run `GET payment-logs/_search` with the body from any JSON file in [`queries/elasticsearch/`](queries/elasticsearch/).
 
-\- Elasticsearch
+**Mapping matters:** The supplied explicit mapping uses `keyword` fields for exact matches (`transaction_id`, `trace.id`, `service.name`, `log.level`) and `integer` for HTTP status. Loading into an index with different mappings may produce zero results or different behavior.
 
-\- Kibana Discover
+**Security note:** For a real environment, follow your organization's TLS, authentication, and data-handling rules. The local HTTP example is for a throwaway development cluster only.
 
-\- Kibana Query Language (KQL)
-
-\- Elasticsearch Query DSL
-
-\- Docker and Docker Compose
-
-\- Windows PowerShell
-
-\- JSON and NDJSON
-
-
-
-\## Architecture
-
-
-
-Synthetic Payment Logs
-
-&#x20;       |
-
-&#x20;       v
-
-Elasticsearch
-
-&#x20;       |
-
-&#x20;       v
-
-Kibana Discover
-
-&#x20;       |
-
-&#x20;       v
-
-KQL Investigations
-
-&#x20;       |
-
-&#x20;       v
-
-Incident Analysis and RCA
-
-
-
-\## Investigations
-
-
-
-| ID | Investigation | KQL Query | Results |
-
-|---|---|---|---|
-
-| LOG-001 | Payment Failure | `transaction\_id: "TXN-100245"` | 4 |
-
-| LOG-002 | Upstream Timeout | `http.response.status\_code: 504` | 2 |
-
-| LOG-003 | Authentication and Authorization | `http.response.status\_code: (401 or 403)` | 2 |
-
-| LOG-004 | High Latency | `event.duration\_ms >= 1000` | 4 |
-
-| LOG-005 | Error Log Analysis | `log.level: "ERROR"` | 7 |
-
-| LOG-006 | HTTP 500 Internal Server Error | `http.response.status\_code: 500` | 3 |
-
-
-
-\## Investigation Evidence
-
-
-
-\### LOG-001: Payment Failure
-
-
-
-!\[Payment Failure](screenshots/LOG-001-payment-failure.png)
-
-
-
-Four correlated events show a payment accepted by the gateway, processing initiated, a bank-adapter failure, and a subsequent payment failure.
-
-
-
-\### LOG-002: Upstream Timeout
-
-
-
-!\[Upstream Timeout](screenshots/LOG-002-upstream-timeout.png)
-
-
-
-Two HTTP 504 events identify an upstream timeout affecting payment processing.
-
-
-
-\### LOG-003: Authentication and Authorization
-
-
-
-!\[Authentication Investigation](screenshots/LOG-003-authentication.png)
-
-
-
-Investigated HTTP 401 and 403 responses to distinguish authentication failures from authorization failures.
-
-
-
-\### LOG-004: High Latency
-
-
-
-!\[High Latency](screenshots/LOG-004-high-latency.png)
-
-
-
-Identified four events with recorded durations of at least 1000 milliseconds.
-
-
-
-\### LOG-005: Error Log Analysis
-
-
-
-!\[Error Analysis](screenshots/LOG-005-error-analysis.png)
-
-
-
-Identified seven ERROR-level events across payment and gateway services.
-
-
-
-\### LOG-006: HTTP 500 Errors
-
-
-
-!\[HTTP 500 Investigation](screenshots/LOG-006-http-500.png)
-
-
-
-Identified three HTTP 500 errors in the API gateway within a 10-second interval.
-
-
-
-\## Key Incident Findings
-
-
-
-\### Payment Failure — TXN-100245
-
-
-
-\- Initial gateway request succeeded.
-
-\- Payment processing began.
-
-\- Bank adapter reported HTTP 503.
-
-\- Payment service subsequently reported HTTP 503.
-
-\- Evidence suggests an upstream dependency failure.
-
-
-
-\### Upstream Timeout — TXN-100249
-
-
-
-\- Bank adapter reported an upstream timeout.
-
-\- Payment service recorded the resulting failure.
-
-\- Both events returned HTTP 504.
-
-\- Further dependency monitoring is needed to establish the underlying cause.
-
-
-
-\### HTTP 500 Error Cluster
-
-
-
-\- Three separate transactions failed.
-
-\- All three errors originated from the API gateway.
-
-\- Events occurred within 10 seconds.
-
-\- A shared application issue is suspected but not confirmed.
-
-
-
-\## Skills Demonstrated
-
-
-
-\- Production log investigation
-
-\- Transaction ID correlation
-
-\- Multi-service troubleshooting
-
-\- HTTP 4xx and 5xx error analysis
-
-\- Latency investigation
-
-\- Kibana KQL filtering
-
-\- Elasticsearch Query DSL
-
-\- Incident triage
-
-\- Root cause analysis
-
-\- Technical documentation
-
-
-
-\## Repository Structure
-
-
+## Repository structure
 
 ```text
-
-kibana-docker-lab/
-
-|-- compose.yaml
-
-|-- payment\_logs.ndjson
-
-|-- bulk-import.ndjson
-
-|-- README.md
-
-|-- screenshots/
-
-|-- docs/
-
-|-- queries/
-
-|-- scripts/
-
+data/payment_logs.ndjson              15 fictional application events
+queries/kql/investigations.kql        Copy/paste Kibana Discover filters
+queries/elasticsearch/*.json          Elasticsearch Query DSL requests
+scripts/create_index.json             Explicit field mappings
+scripts/validate_examples.py          Offline fixture verification
+tests/test_fixtures.py                Standard-library unit tests
+docs/incident-investigations.md       Six labs and sample RCA
+.github/workflows/validate.yml        CI validation
 ```
 
+## What I learned / interview talking points
 
+- KQL filters data in Kibana Discover; Query DSL powers Elasticsearch `_search` requests.
+- Exact-match fields must be mapped appropriately to avoid false zero-hit investigations.
+- Time range and selected data view are common reasons Discover displays no results.
+- A transaction ID links a payment's lifecycle; a trace ID correlates events across services.
+- Logs support evidence-based **observations**; deeper root-cause claims need additional evidence.
 
-\## Running the Lab
-
-
-
-Start the Docker environment from the project directory:
-
-
-
-```powershell
-
-docker compose up -d
-
-```
-
-
-
-Open Kibana:
-
-
-
-http://localhost:5601
-
-
-
-Import the synthetic logs into the `payment-logs` Elasticsearch index using the prepared bulk-import file:
-
-
-
-```powershell
-
-curl.exe -X POST "http://localhost:9200/payment-logs/\_bulk?refresh=true" -H "Content-Type: application/x-ndjson" --data-binary "@bulk-import.ndjson"
-
-```
-
-
-
-Verify the indexed documents in Kibana Dev Tools:
-
-
-
-```http
-
-GET /payment-logs/\_count
-
-```
-
-
-
-Expected count: 15.
-
-
-
-Create a Kibana data view for `payment-logs`, using `@timestamp` as the time field. Set the Discover time range to September 15–16, 2026 to inspect the synthetic events.
-
-
-
-\## Disclaimer
-
-
-
-This is an independent training project created using synthetic payment application logs. It does not contain real production data, customer information, credentials, or proprietary employer configurations.
-
-
-
+**Limitations:** Dashboards and screenshots are not included because a running Kibana environment has not been provisioned or tested for this project. Offline fixture verification is automated; live Kibana/Elasticsearch validation remains an optional next step.

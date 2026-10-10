@@ -1,0 +1,13 @@
+{
+  "query": {
+    "term": {
+      "trace.id": "TRACE-A1"
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": "asc"
+    }
+  ],
+  "size": 100
+}
