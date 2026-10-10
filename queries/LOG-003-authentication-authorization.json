@@ -1,0 +1,19 @@
+
+{
+  "size": 10,
+  "query": {
+    "terms": {
+      "http.response.status_code": [
+        401,
+        403
+      ]
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": {
+        "order": "asc"
+      }
+    }
+  ]
+}

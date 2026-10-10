@@ -1,0 +1,30 @@
+{"index":{}}
+{"@timestamp": "2026-09-15T10:00:00Z", "transaction_id": "TXN-100245", "service.name": "api-gateway", "log.level": "INFO", "http.response.status_code": 200, "event.action": "payment_received", "event.duration_ms": 20, "trace.id": "TRACE-A1", "message": "Payment accepted by gateway"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:00:01Z", "transaction_id": "TXN-100245", "service.name": "payment-service", "log.level": "INFO", "http.response.status_code": 200, "event.action": "payment_processing", "event.duration_ms": 65, "trace.id": "TRACE-A1", "message": "Payment processing started"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:00:02Z", "transaction_id": "TXN-100245", "service.name": "bank-adapter", "log.level": "ERROR", "http.response.status_code": 503, "event.action": "bank_unavailable", "event.duration_ms": 5200, "trace.id": "TRACE-A1", "message": "Bank adapter unavailable"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:00:03Z", "transaction_id": "TXN-100245", "service.name": "payment-service", "log.level": "ERROR", "http.response.status_code": 503, "event.action": "payment_failed", "event.duration_ms": 5300, "trace.id": "TRACE-A1", "message": "Payment failed after upstream service unavailable"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:01:00Z", "transaction_id": "TXN-100246", "service.name": "api-gateway", "log.level": "INFO", "http.response.status_code": 200, "event.action": "payment_received", "event.duration_ms": 22, "trace.id": "TRACE-A2", "message": "Payment accepted"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:01:01Z", "transaction_id": "TXN-100246", "service.name": "payment-service", "log.level": "INFO", "http.response.status_code": 200, "event.action": "payment_succeeded", "event.duration_ms": 140, "trace.id": "TRACE-A2", "message": "Payment completed successfully"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:02:00Z", "transaction_id": "TXN-100247", "service.name": "auth-service", "log.level": "WARN", "http.response.status_code": 401, "event.action": "authentication_failed", "event.duration_ms": 35, "trace.id": "TRACE-A3", "message": "Invalid authentication token"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:03:00Z", "transaction_id": "TXN-100248", "service.name": "auth-service", "log.level": "WARN", "http.response.status_code": 403, "event.action": "authorization_denied", "event.duration_ms": 28, "trace.id": "TRACE-A4", "message": "Insufficient permission"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:04:00Z", "transaction_id": "TXN-100249", "service.name": "bank-adapter", "log.level": "ERROR", "http.response.status_code": 504, "event.action": "upstream_timeout", "event.duration_ms": 10000, "trace.id": "TRACE-A5", "message": "Upstream timeout after 10000 ms"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:04:01Z", "transaction_id": "TXN-100249", "service.name": "payment-service", "log.level": "ERROR", "http.response.status_code": 504, "event.action": "payment_failed", "event.duration_ms": 10040, "trace.id": "TRACE-A5", "message": "Payment failed due to upstream timeout"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:05:00Z", "transaction_id": "TXN-100250", "service.name": "payment-service", "log.level": "INFO", "http.response.status_code": 200, "event.action": "payment_succeeded", "event.duration_ms": 110, "trace.id": "TRACE-A6", "message": "Payment completed successfully"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:06:00Z", "transaction_id": "TXN-100251", "service.name": "api-gateway", "log.level": "ERROR", "http.response.status_code": 500, "event.action": "internal_error", "event.duration_ms": 230, "trace.id": "TRACE-A7", "message": "Unexpected internal error"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:06:05Z", "transaction_id": "TXN-100252", "service.name": "api-gateway", "log.level": "ERROR", "http.response.status_code": 500, "event.action": "internal_error", "event.duration_ms": 210, "trace.id": "TRACE-A8", "message": "Unexpected internal error"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:06:10Z", "transaction_id": "TXN-100253", "service.name": "api-gateway", "log.level": "ERROR", "http.response.status_code": 500, "event.action": "internal_error", "event.duration_ms": 245, "trace.id": "TRACE-A9", "message": "Unexpected internal error"}
+{"index":{}}
+{"@timestamp": "2026-09-15T10:07:00Z", "transaction_id": "TXN-100254", "service.name": "payment-service", "log.level": "INFO", "http.response.status_code": 200, "event.action": "payment_succeeded", "event.duration_ms": 95, "trace.id": "TRACE-B1", "message": "Payment completed successfully"}

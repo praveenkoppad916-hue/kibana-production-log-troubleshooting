@@ -1,0 +1,16 @@
+
+{
+  "size": 10,
+  "query": {
+    "term": {
+      "http.response.status_code": 504
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": {
+        "order": "asc"
+      }
+    }
+  ]
+}

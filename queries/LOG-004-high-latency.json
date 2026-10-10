@@ -1,0 +1,18 @@
+
+{
+  "size": 10,
+  "query": {
+    "range": {
+      "event.duration_ms": {
+        "gte": 1000
+      }
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": {
+        "order": "asc"
+      }
+    }
+  ]
+}

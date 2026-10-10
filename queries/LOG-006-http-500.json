@@ -1,0 +1,32 @@
+
+{
+  "size": 10,
+  "query": {
+    "bool": {
+      "filter": [
+        {
+          "term": {
+            "service.name": "api-gateway"
+          }
+        },
+        {
+          "term": {
+            "log.level": "ERROR"
+          }
+        },
+        {
+          "term": {
+            "http.response.status_code": 500
+          }
+        }
+      ]
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": {
+        "order": "asc"
+      }
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+
+{
+  "size": 20,
+  "query": {
+    "term": {
+      "log.level": "ERROR"
+    }
+  },
+  "sort": [
+    {
+      "@timestamp": {
+        "order": "asc"
+      }
+    }
+  ]
+}
