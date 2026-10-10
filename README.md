@@ -78,6 +78,81 @@ docs/incident-investigations.md       Six labs and sample RCA
 .github/workflows/validate.yml        CI validation
 ```
 
+## Hands-on Docker, Elasticsearch & Kibana Lab
+
+Alongside the original synthetic-data investigation project, I created
+a local Docker-based Elasticsearch and Kibana environment to practice
+realistic L2/L3 production support troubleshooting.
+
+### Lab Environment
+
+- Docker Compose for local service orchestration
+- Elasticsearch for application log indexing and searching
+- Kibana Discover for log investigations
+- Kibana Dev Tools for Elasticsearch Query DSL
+- Synthetic fintech payment transaction logs
+- Incident investigation documentation and RCA
+- Screenshots documenting the investigation process
+
+### Hands-on Investigations
+
+The Docker lab includes six additional investigations:
+
+| Lab | Investigation | KQL Filter | Observed Hits |
+|---|---|---|---:|
+| LOG-001 | Payment failure | `transaction_id: "TXN-100245"` | 4 |
+| LOG-002 | Upstream timeout | `http.response.status_code: 504` | 2 |
+| LOG-003 | Authentication and authorization | `http.response.status_code: (401 or 403)` | 2 |
+| LOG-004 | High response latency | `event.duration_ms >= 1000` | 4 |
+| LOG-005 | Application errors | `log.level: "ERROR"` | 7 |
+| LOG-006 | HTTP 500 internal server errors | `http.response.status_code: 500` | 3 |
+
+These investigations are separate from the six original offline
+fixture scenarios documented earlier in this README.
+
+### Investigation Methodology
+
+1. Open Kibana Discover and select the payment log data view.
+2. Set the appropriate absolute time range.
+3. Filter application logs using KQL.
+4. Investigate transaction IDs, HTTP status codes, and error messages.
+5. Correlate events across application services.
+6. Analyze response latency and application failures.
+7. Record evidence and document incident findings.
+8. Prepare an evidence-based incident RCA.
+
+### Docker Lab Documentation
+
+- [Docker Lab README](README-docker-lab.md)
+- [KQL Investigation Notes](queries/kql-investigations.md)
+- [Query DSL Examples](queries/)
+- [Incident RCA](docs/INCIDENT-RCA-001.md)
+- [Kibana Screenshots](screenshots/)
+
+### Skills Demonstrated
+
+- L2/L3 Application Production Support
+- Elasticsearch and Kibana
+- Docker Compose
+- KQL and Elasticsearch Query DSL
+- Application Log Analysis
+- Payment Transaction Troubleshooting
+- HTTP 4xx/5xx Error Investigation
+- Incident Management
+- Root Cause Analysis
+- Technical Documentation
+
+### Validation Scope
+
+The original GitHub Actions workflow validates synthetic fixture data,
+scenario assertions, JSON syntax, and unit tests.
+
+The separate Docker lab includes hands-on Kibana Discover investigations
+with saved screenshots. These screenshots demonstrate the observed
+results but do not replace automated live Elasticsearch integration tests.
+
+All data used in this project is fictional and intended for learning.
+
 ## What I learned / interview talking points
 
 - KQL filters data in Kibana Discover; Query DSL powers Elasticsearch `_search` requests.
@@ -86,4 +161,17 @@ docs/incident-investigations.md       Six labs and sample RCA
 - A transaction ID links a payment's lifecycle; a trace ID correlates events across services.
 - Logs support evidence-based **observations**; deeper root-cause claims need additional evidence.
 
-**Limitations:** Dashboards and screenshots are not included because a running Kibana environment has not been provisioned or tested for this project. Offline fixture verification is automated; live Kibana/Elasticsearch validation remains an optional next step.
+
+**Limitations:** The original sample investigations are validated
+automatically using Python and GitHub Actions. A separate local
+Docker-based Elasticsearch and Kibana lab was successfully tested
+through Kibana Discover and Elasticsearch Dev Tools.
+
+Six investigation screenshots and incident RCA documentation are
+included in this repository.
+
+Live Elasticsearch integration tests are not currently part of the
+GitHub Actions workflow. Kibana dashboards have not been included.
+
+All application logs and transaction records are synthetic.
+
