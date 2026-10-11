@@ -77,6 +77,46 @@ tests/test_fixtures.py                Standard-library unit tests
 docs/incident-investigations.md       Six labs and sample RCA
 .github/workflows/validate.yml        CI validation
 ```
+## System Architecture
+
+```mermaid
+flowchart TD
+    A["Synthetic Payment Logs"] --> B["Docker-based Elasticsearch"]
+    B --> C["Payment Logs Index"]
+    C --> D["Kibana Discover"]
+    C --> E["Elasticsearch Dev Tools"]
+    D --> F["KQL Log Investigations"]
+    E --> G["Query DSL Investigations"]
+    F --> H["Transaction and Error Correlation"]
+    G --> H
+    H --> I["Incident Findings and RCA"]
+    I --> J["Screenshots and GitHub Documentation"]
+
+    K["Synthetic Dataset"] --> L["Python Fixture Validation"]
+    L --> M["GitHub Actions CI"]
+```
+
+### Architecture Explanation
+
+This project demonstrates a reproducible production-support troubleshooting workflow using Docker, Elasticsearch, and Kibana.
+
+1. **Log ingestion:** Synthetic fintech payment logs are imported into Elasticsearch.
+2. **Log investigation:** Kibana Discover and Elasticsearch Dev Tools are used to search application logs with KQL and Query DSL.
+3. **Incident analysis:** Transaction IDs, trace IDs, HTTP response codes, and application errors are correlated to investigate payment failures and service issues.
+4. **RCA documentation:** Investigation findings are documented with supporting screenshots and incident reports.
+5. **Automated validation:** Python tests and GitHub Actions independently verify the synthetic dataset and expected investigation results.
+
+### Interview-Ready Project Explanation
+
+"I developed a hands-on Kibana and Elasticsearch production troubleshooting lab using Docker and synthetic fintech payment logs.
+
+I imported application logs into Elasticsearch and investigated payment failures, HTTP 500 errors, upstream timeouts, and authentication issues using Kibana KQL and Elasticsearch Query DSL.
+
+For example, I traced transaction `TXN-100245` and verified four matching log events. I also documented incident findings, prepared RCA reports, and configured GitHub Actions to validate the sample investigation data.
+
+This project demonstrates my approach to production incident investigation, log correlation, and evidence-based troubleshooting."
+
+**Validation note:** Live Kibana investigations were performed locally. GitHub Actions validates the sample data and tests, not live Elasticsearch query execution.
 
 ## Hands-on Docker, Elasticsearch & Kibana Lab
 
